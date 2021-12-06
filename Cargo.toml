@@ -1,0 +1,18 @@
+[package]
+name = "twitter-followers"
+version = "0.1.0"
+edition = "2021"
+authors = ["Harsh Shandilya <me@msfjarvis.dev>"]
+license = "MIT/Apache-2.0"
+description = "Fetch Twitter user's followers"
+repository = "https://github.com/friendbear/twitter-followers"
+homepage = "https://github.com/msfjarvis/twitter-followers"
+keywords = ["twitter"]
+readme = "README.md"
+
+[dependencies]
+color-eyre = { version = "0.5.11", default-features = false }
+egg-mode = { version = "0.16.0", features = ["rustls_webpki"], default-features = false }
+tokio = { version = "1.14.0", features = ["rt-multi-thread", "macros"] }
+structopt = "0.3.25"
+futures = "0.3"
