@@ -9,6 +9,9 @@ use egg_mode::KeyPair;
 use egg_mode::Token::Access;
 use structopt::StructOpt;
 use futures::{StreamExt, TryStreamExt};
+use serde_json;
+extern crate ratelimit;
+use std::time::Duration;
 
 #[derive(StructOpt)]
 #[structopt(
@@ -49,28 +52,42 @@ async fn main() -> Result<()> {
     let access = KeyPair::new(options.access_token, options.access_token_secret);
     let token = Access { consumer, access };
 
-    let user_id: UserID = options.username.into();
+    let mut ratelimit = ratelimit::Builder::new()
+        .capacity(10)
+        .quantum(1)
+        .interval(Duration::from_secs(60))
+        .build();
 
-    let list = egg_mode::user::followers_of(user_id, &token)
-        .take(200)
+
+    let user_id: UserID = options.username.into();
+    println!("Fetching tweets...");
+    for i in -10..options.max_amount {
+        let tweets = user::followers_of(user_id.clone(), &token)
+            .take(100)
             .map_ok(|r| r.response)
             .try_collect::<Vec<_>>().await?;
 
-    print_followers(list.iter());
+        tweets.iter().for_each(|tweet| {
+            print_followers(&tweet);
+        });
+        ratelimit.wait();
+    }
+   
+//    print!("{}", serde_json::to_string_pretty(&users)?);
+    //print_followers(list.iter());
 
     Ok(())
 }
 
-fn print_followers(iterator: Iter<TwitterUser>) {
-    iterator
+fn print_followers(x: &TwitterUser) {
 //        .filter_map(|status| status.entities.media.as_ref())
 //        .flatten()
         // .map(|x| &x.media_url_https)
         // .filter(|x| !x.contains("thumb"))
-        .for_each(|x| println!(r#"{{id: {id}, "username": "{username}", "name": "{name}", "created_at": "{created_at}"}}"#,
+        println!(r#"{{"id": "{:?}", "username": "{:?}", "name": "{:?}", "description", "{:?}, "created_at": "{:?}"}}"#,
             id = x.id,
             username = x.screen_name,
             name = x.name,
-            created_at = x.created_at)
-        );
+            description = x.description,
+            created_at = x.created_at);
 }

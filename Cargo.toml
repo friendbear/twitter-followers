@@ -11,8 +11,11 @@ keywords = ["twitter"]
 readme = "README.md"
 
 [dependencies]
-color-eyre = { version = "0.5.11", default-features = false }
+color-eyre = { version = "0.6.1", default-features = false }
 egg-mode = { version = "0.16.0", features = ["rustls_webpki"], default-features = false }
-tokio = { version = "1.14.0", features = ["rt-multi-thread", "macros"] }
-structopt = "0.3.25"
-futures = "0.3"
+tokio = { version = "1.17.0", features = ["rt-multi-thread", "macros"] }
+structopt = "0.3.26"
+futures = "0.3.21"
+serde = "1.0.136"
+serde_json = "1.0.79"
+ratelimit = "0.4.4"
